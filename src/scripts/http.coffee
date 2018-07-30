@@ -25,8 +25,7 @@ supported_tasks       = [ "#{DeployPrefix}-hooks:sync" ]
 
 Verifiers = require(Path.join(__dirname, "..", "models", "verifiers"))
 
-AppsJsonFile = process.env['HUBOT_DEPLOY_APPS_JSON'] or "apps.json"
-AppsJsonData = JSON.parse(Fs.readFileSync(AppsJsonFile))
+AppsJsonData = {}
 ###########################################################################
 module.exports = (robot) ->
   ipVerifier = new Verifiers.GitHubWebHookIpVerifier
