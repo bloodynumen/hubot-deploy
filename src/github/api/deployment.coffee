@@ -8,15 +8,13 @@ GitHubApi = require(Path.join(__dirname, "..", "api")).Api
 ###########################################################################
 
 class Deployment
-  @APPS_FILE = process.env['HUBOT_DEPLOY_APPS_JSON'] or "apps.json"
-
   constructor: (@name, @ref, @task, @env, @force, @hosts) ->
     @room             = 'unknown'
     @user             = 'unknown'
     @adapter          = 'unknown'
     @userName         = 'unknown'
     @robotName        = 'hubot'
-    @autoMerge        = true
+    @autoMerge        = false
     @environments     = [ "production" ]
     @requiredContexts = null
     @caFile           = Fs.readFileSync(process.env['HUBOT_CA_FILE']) if process.env['HUBOT_CA_FILE']
@@ -24,27 +22,8 @@ class Deployment
     @messageId        = undefined
     @threadId         = undefined
 
-    try
-      applications = JSON.parse(Fs.readFileSync(@constructor.APPS_FILE).toString())
-    catch
-      throw new Error("Unable to parse your apps.json file in hubot-deploy")
-
-    @application = applications[@name]
-
-    if @application?
-      @repository = @application['repository']
-
-      @configureAutoMerge()
-      @configureRequiredContexts()
-      @configureEnvironments()
-
-      @allowedRooms = @application['allowed_rooms']
-
-  isValidApp: ->
-    @application?
-
-  isValidEnv: ->
-    @env in @environments
+    @repository = "#{process.env['GITHUB_ORGANIZATION']}/#{@name}"
+    @allowedRooms = [ 'deployment', 'tech' ]
 
   isAllowedRoom: (room) ->
     !@allowedRooms? || room in @allowedRooms
@@ -85,13 +64,13 @@ class Deployment
         user_name: @userName
         message_id: @messageId
         thread_id: @threadId
-      config: @application
+      config: { 'provider': 'fabric' }
 
   setUserToken: (token) ->
     @userToken = token.trim()
 
   apiConfig: ->
-    new GitHubApi(@userToken, @application)
+    new GitHubApi(@userToken, null)
 
   api: ->
     api = Octonode.client(@apiConfig().token, { hostname: @apiConfig().hostname })
@@ -179,25 +158,5 @@ class Deployment
 
     @api().post path, @requestBody(), (err, status, body, headers) ->
       callback(err, status, body, headers)
-
-  # Private Methods
-  configureEnvironments: ->
-    if @application['environments']?
-      @environments = @application['environments']
-
-    @env = 'staging' if @env == 'stg'
-    @env = 'production' if @env == 'prod'
-
-  configureAutoMerge: ->
-    if @application['auto_merge']?
-      @autoMerge = @application['auto_merge']
-    if @force
-      @autoMerge = false
-
-  configureRequiredContexts: ->
-    if @application['required_contexts']?
-      @requiredContexts = @application['required_contexts']
-    if @force
-      @requiredContexts = [ ]
 
 exports.Deployment = Deployment

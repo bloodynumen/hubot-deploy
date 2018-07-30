@@ -53,13 +53,6 @@ module.exports = (robot) ->
 
     try
       deployment = new Deployment(name, null, null, environment)
-      unless deployment.isValidApp()
-        msg.reply "#{name}? Never heard of it."
-        return
-      unless deployment.isValidEnv()
-        if environment.length > 0
-          msg.reply "#{name} doesn't seem to have an #{environment} environment."
-          return
 
       user = robot.brain.userForId msg.envelope.user.id
       token = robot.vault.forUser(user).get(TokenForBrain)
@@ -76,7 +69,7 @@ module.exports = (robot) ->
       if robot.adapterName is "hipchat"
         if msg.envelope.user.reply_to?
           deployment.room = msg.envelope.user.reply_to
-          
+
       if robot.adapterName is "slack"
         deployment.user = user.name
         deployment.room = robot.adapter.client.rtm.dataStore.getChannelGroupOrDMById(msg.message.user.room).name
@@ -106,14 +99,8 @@ module.exports = (robot) ->
 
     deployment = new Deployment(name, ref, task, env, force, hosts)
 
-    unless deployment.isValidApp()
-      msg.reply "#{name}? Never heard of it."
-      return
-    unless deployment.isValidEnv()
-      msg.reply "#{name} doesn't seem to have an #{env} environment."
-      return
     unless deployment.isAllowedRoom(msg.message.user.room)
-      msg.reply "#{name} is not allowed to be deployed from this room."
+      msg.reply "#{name} is only allowed to be deployed from deployment and tech channel."
       return
 
     user = robot.brain.userForId msg.envelope.user.id
