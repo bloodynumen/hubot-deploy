@@ -23,7 +23,7 @@ class Deployment
     @threadId         = undefined
 
     @repository = "#{process.env['GITHUB_ORGANIZATION']}/#{@name}"
-    @allowedRooms = [ 'deployment', 'tech' ]
+    @allowedRooms = [ 'CB30PJEKE' ]
 
   isAllowedRoom: (room) ->
     !@allowedRooms? || room in @allowedRooms

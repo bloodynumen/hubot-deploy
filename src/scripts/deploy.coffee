@@ -100,7 +100,7 @@ module.exports = (robot) ->
     deployment = new Deployment(name, ref, task, env, force, hosts)
 
     unless deployment.isAllowedRoom(msg.message.user.room)
-      msg.reply "#{name} is only allowed to be deployed from deployment and tech channel."
+      msg.reply "#{name} is only allowed to be deployed from tech channel."
       return
 
     user = robot.brain.userForId msg.envelope.user.id
