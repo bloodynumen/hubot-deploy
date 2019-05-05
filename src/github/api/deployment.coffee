@@ -16,7 +16,7 @@ class Deployment
     @robotName        = 'hubot'
     @autoMerge        = false
     @environments     = [ "production" ]
-    @requiredContexts = null
+    @requiredContexts = []
     @caFile           = Fs.readFileSync(process.env['HUBOT_CA_FILE']) if process.env['HUBOT_CA_FILE']
 
     @messageId        = undefined
